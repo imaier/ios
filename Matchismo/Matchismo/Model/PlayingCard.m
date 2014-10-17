@@ -56,7 +56,17 @@
         } else if ([otherCard.suit isEqualToString:self.suit]) {
             score = 1;
         }
+    } else if ([otherCards count] == 2) {
+        PlayingCard *otherCard = [otherCards firstObject];
+        PlayingCard *thridCard  = otherCards[1];
+        if(self.rank == otherCard.rank && self.rank == thridCard.rank) {
+            score = 8;
+        } else if ([otherCard.suit isEqualToString:self.suit] && [thridCard.suit isEqualToString:self.suit]) {
+            score = 3;
+        }
+        
     }
+    
     
     return score;
 }

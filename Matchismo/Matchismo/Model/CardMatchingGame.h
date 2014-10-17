@@ -10,6 +10,11 @@
 #include "Deck.h"
 #import "Card.h"
 
+typedef enum {
+    gmTwoCardsMatching,
+    gmThreeCardsMatching,
+} GameMode;
+
 @interface CardMatchingGame : NSObject
 
 - (instancetype)initWithCardCount:(NSUInteger)count usingDeck:(Deck *)deck;
@@ -18,5 +23,11 @@
 - (Card *)cardAtIndex:(NSUInteger)index;
 
 @property (nonatomic, readonly) NSInteger score;
+
+@property (nonatomic, readonly, getter=isGameStarted ) BOOL gameStarted;
+
+@property (nonatomic) GameMode mode;
+
+@property (nonatomic, readonly, strong) NSString *lastConsideratonResult;
 
 @end

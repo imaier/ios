@@ -11,10 +11,12 @@
 #import "PlayingCard.h"
 #import "CardMatchingGame.h"
 
-@interface CardGameViewController ()
+@interface CardGameViewController () <UIAlertViewDelegate>
 @property (strong, nonatomic) CardMatchingGame *game;
 @property (strong, nonatomic) IBOutletCollection(UIButton) NSArray *cardButtons;
 @property (weak, nonatomic) IBOutlet UILabel *scoreLablel;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *gameModeSegmentControl;
+@property (weak, nonatomic) IBOutlet UILabel *lastConsiderationLabel;
 @end
 
 @implementation CardGameViewController
@@ -30,10 +32,9 @@
     return [[PlayingCardDeck alloc] init];
 }
 
-
 - (IBAction)touchCardButton:(UIButton *)sender
 {
-    int chosenButtonIndex = [self.cardButtons indexOfObject:sender];
+    NSUInteger chosenButtonIndex = [self.cardButtons indexOfObject:sender];
     [self.game chooseCardAtIndex:chosenButtonIndex];
     [self updateUI];
 }
@@ -41,14 +42,18 @@
 - (void)updateUI
 {
     for(UIButton *cardButton in self.cardButtons) {
-        int chosenButtonIndex = [self.cardButtons indexOfObject:cardButton];
+        NSUInteger chosenButtonIndex = [self.cardButtons indexOfObject:cardButton];
         Card * card = [self.game cardAtIndex:chosenButtonIndex];
         [cardButton setTitle:[self titleForCard:card] forState:UIControlStateNormal];
         [cardButton setBackgroundImage:[self backgroundForCard:card] forState:UIControlStateNormal];
         cardButton.enabled = !card.isMatched;
     }
     
-    [self.scoreLablel setText:[NSString stringWithFormat:@"Score: %d", self.game.score]];
+    [self.scoreLablel setText:[NSString stringWithFormat:@"Score: %ld", (long)self.game.score]];
+    
+    self.gameModeSegmentControl.enabled = !self.game.isGameStarted;
+    
+    self.lastConsiderationLabel.text = self.game.lastConsideratonResult;
 }
 
 - (NSString*)titleForCard:(Card*)card
@@ -59,6 +64,32 @@
 - (UIImage*)backgroundForCard:(Card*)card
 {
     return [UIImage imageNamed:card.isChosen ? @"cardfront" : @"cardback"];
+}
+
+- (IBAction)startNewGame:(id)sender {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Confirmattion" message:@"Start a new game?" delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"Yes", nil];
+    [alert show];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    self.game = nil;
+    [self switchGameMode:nil];
+    [self updateUI];
+}
+
+- (IBAction)switchGameMode:(id)sender {
+    switch (self.gameModeSegmentControl.selectedSegmentIndex) {
+        case 0:
+            self.game.mode = gmTwoCardsMatching;
+            break;
+        case 1:
+            self.game.mode = gmThreeCardsMatching;
+            break;
+        default:
+            break;
+    }
+    
 }
 
 @end
