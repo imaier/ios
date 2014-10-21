@@ -180,4 +180,8 @@ const NSUInteger cardSpace = 8;
     }
 }
 
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskAll;
+}
 @end
