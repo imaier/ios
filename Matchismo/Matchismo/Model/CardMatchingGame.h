@@ -28,6 +28,7 @@ typedef enum {
 
 @property (nonatomic) GameMode mode;
 
-@property (nonatomic, readonly, strong) NSString *lastConsideratonResult;
+//@property (nonatomic, readonly, strong) NSString *lastConsideratonResult;
+@property (nonatomic, readonly, strong) NSAttributedString *lastConsideratonResult;
 
 @end

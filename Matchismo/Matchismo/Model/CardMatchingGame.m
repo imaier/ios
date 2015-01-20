@@ -12,7 +12,7 @@
 @property (nonatomic,readwrite) NSInteger score;
 @property (nonatomic, strong) NSMutableArray *cards;
 @property (nonatomic, readwrite, getter=isGameStarted ) BOOL gameStarted;
-@property (nonatomic, readwrite, strong) NSString *lastConsideratonResult;
+@property (nonatomic, readwrite, strong) NSAttributedString *lastConsideratonResult;
 @end
 
 @implementation CardMatchingGame
@@ -62,10 +62,12 @@ static const int COST_TO_CHOOSE = 1;
             if (!card.isMatched) {
                 if (card.isChosen) {
                     card.chosen = NO;
-                    self.lastConsideratonResult = @"";
+                    
+                    self.lastConsideratonResult = [[NSAttributedString alloc] initWithString:@""];
                 } else {
                     // match against other chosen cards
-                    self.lastConsideratonResult = [NSString stringWithFormat:@"%@", card.contents];
+                    //self.lastConsideratonResult = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", card.contents]];
+                    self.lastConsideratonResult = card.contents;
                     for(Card *otherCard in self.cards) {
                         if (otherCard.isChosen && !otherCard.isMatched) {
                             int matchScore = [card match:@[otherCard]];
@@ -73,11 +75,14 @@ static const int COST_TO_CHOOSE = 1;
                                 self.score += matchScore * MATCH_BONUS;
                                 card.matched = YES;
                                 otherCard.matched = YES;
-                                self.lastConsideratonResult = [NSString stringWithFormat:@"Matched! %@, %@ for %d points!", card.contents, otherCard.contents, matchScore * MATCH_BONUS];
+                                
+                                //self.lastConsideratonResult = [NSString stringWithFormat:@"Matched! %@, %@ for %d points!", card.contents, otherCard.contents, matchScore * MATCH_BONUS];
+                                
+                                self.lastConsideratonResult = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"Matched! %@, %@ for %d points!", card.contents, otherCard.contents, matchScore * MATCH_BONUS]];
                             } else {
                                 self.score -= MISMATCH_PENALTY;
                                 otherCard.chosen = NO;
-                                self.lastConsideratonResult = [NSString stringWithFormat:@"%@, %@ don’t match! %d point penalty!", card.contents, otherCard.contents, MISMATCH_PENALTY];
+                                self.lastConsideratonResult = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@, %@ don’t match! %d point penalty!", card.contents, otherCard.contents, MISMATCH_PENALTY]];
                             }
                             break;
                         }
@@ -92,10 +97,11 @@ static const int COST_TO_CHOOSE = 1;
             if (!card.isMatched) {
                 if (card.isChosen) {
                     card.chosen = NO;
-                    self.lastConsideratonResult = @"";
+                    self.lastConsideratonResult = [[NSAttributedString alloc] initWithString:@""];
                 } else {
                     // match against other chosen cards
-                    self.lastConsideratonResult = [NSString stringWithFormat:@"%@", card.contents];
+                    //self.lastConsideratonResult = [NSString stringWithFormat:@"%@", card.contents];
+                    self.lastConsideratonResult = card.contents;
                     for(Card *otherCard in self.cards) {
                         if (otherCard.isChosen && !otherCard.isMatched) {
                             for(Card *thirdCard in self.cards) {
@@ -106,12 +112,33 @@ static const int COST_TO_CHOOSE = 1;
                                         card.matched = YES;
                                         otherCard.matched = YES;
                                         thirdCard.matched = YES;
-                                        self.lastConsideratonResult = [NSString stringWithFormat:@"Matched! %@, %@, %@ for %d points!", card.contents, otherCard.contents, thirdCard.contents, matchScore * MATCH_BONUS];
+                                        
+                                        NSMutableAttributedString *ma = [[NSMutableAttributedString alloc] initWithString:@"Matched! "];
+                                        [ma appendAttributedString:card.contents];
+                                        [ma appendAttributedString:[[NSMutableAttributedString alloc] initWithString:@", "]];
+                                        [ma appendAttributedString:otherCard.contents];
+                                        [ma appendAttributedString:[[NSMutableAttributedString alloc] initWithString:@", "]];
+                                        [ma appendAttributedString:thirdCard.contents];
+                                        [ma appendAttributedString:[[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@" for %d points!", matchScore * MATCH_BONUS]]];
+                                        [ma addAttributes:@{NSFontAttributeName: [[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline] fontWithSize:11.0]} range:NSMakeRange(0, [ma length])];
+                                        self.lastConsideratonResult = [[NSAttributedString alloc] initWithAttributedString:ma];
+                                        //self.lastConsideratonResult = [NSString stringWithFormat:@"Matched! %@, %@, %@ for %d points!", card.contents, otherCard.contents, thirdCard.contents, matchScore * MATCH_BONUS];
                                     } else {
                                         self.score -= MISMATCH_PENALTY;
                                         otherCard.chosen = NO;
                                         thirdCard.chosen = NO;
-                                        self.lastConsideratonResult = [NSString stringWithFormat:@"%@, %@, %@ don’t match! %d point penalty!", card.contents, otherCard.contents, thirdCard.contents, MISMATCH_PENALTY];
+                                        
+                                        NSMutableAttributedString *ma = [[NSMutableAttributedString alloc] initWithString:@""];
+                                        [ma appendAttributedString:card.contents];
+                                        [ma appendAttributedString:[[NSMutableAttributedString alloc] initWithString:@", "]];
+                                        [ma appendAttributedString:otherCard.contents];
+                                        [ma appendAttributedString:[[NSMutableAttributedString alloc] initWithString:@", "]];
+                                        [ma appendAttributedString:thirdCard.contents];
+                                        [ma appendAttributedString:[[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@" don’t match! %d point penalty!", MISMATCH_PENALTY]]];
+                                        [ma addAttributes:@{NSFontAttributeName: [[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline] fontWithSize:11.0]} range:NSMakeRange(0, [ma length])];
+                                        self.lastConsideratonResult = [[NSAttributedString alloc] initWithAttributedString:ma];
+
+                                        //self.lastConsideratonResult = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@, %@, %@ don’t match! %d point penalty!", card.contents, otherCard.contents, thirdCard.contents, MISMATCH_PENALTY]];
                                     }
                                     break;
                                 }
